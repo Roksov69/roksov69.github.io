@@ -1,1 +1,942 @@
-# roksov69.github.io
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROKSOV69 | Portfolio</title>
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050507;
+            --surface: #0f1015;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --primary: #6366f1; 
+            --secondary: #ec4899; 
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --text-bio: #9ca3af; 
+            
+            --radius: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- CANVAS MATRIX BACKGROUND --- */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .ambient-light {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.1) 0%, transparent 40%);
+            filter: blur(80px);
+        }
+
+        /* Хедер */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 5, 7, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .logo-center:hover { opacity: 0.8; }
+
+        .controls-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        /* Переключатель языка */
+        .lang-switch {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 4px;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Основной контент */
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .hero {
+            margin-top: 2rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-ring {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            margin-bottom: 1.5rem;
+            animation: pulse 3s infinite ease-in-out;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--bg-dark);
+        }
+
+        .fade-text {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .role-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .description-caps {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 400;
+            color: var(--text-bio); 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-social {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-social:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-donate:hover {
+            background: var(--primary); 
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-social svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* --- PYTHON TERMINAL WRAPPER --- */
+        .terminal-wrapper {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .launch-btn {
+            display: none; 
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed var(--glass-border);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .launch-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .python-shell {
+            background: #0d1117; 
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: visible; 
+            display: flex;
+            flex-direction: column;
+            transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.3s ease, 
+                        transform 0.3s ease;
+            height: 280px;
+            opacity: 1;
+            transform: scaleY(1);
+            position: relative;
+        }
+
+        .shell-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--glass-border);
+            user-select: none;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 12px 12px 0 0;
+            z-index: 2;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            position: relative;
+        }
+        .control-dot:hover { transform: scale(1.1); filter: brightness(1.2); }
+
+        .dot-close { background: #ff5f56; }
+        .dot-minimize { background: #ffbd2e; }
+        .dot-maximize { background: #27c93f; }
+
+        .shell-title {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .shell-body {
+            padding: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #c9d1d9;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            transition: opacity 0.3s ease;
+            border-radius: 0 0 12px 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* СОСТОЯНИЯ ОКНА С АНИМАЦИЕЙ */
+        .python-shell.minimized {
+            height: 40px; 
+        }
+        .python-shell.minimized .shell-body {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden; 
+        }
+        .python-shell.minimized .toggle-commands-btn {
+            display: none;
+        }
+        
+        .python-shell.closing {
+            opacity: 0;
+            transform: scaleY(0.9);
+        }
+        .python-shell.closed {
+            display: none;
+        }
+
+        .python-shell.opening {
+            opacity: 0;
+            transform: scaleY(0.9);
+        }
+
+        .output-line {
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .py-prompt {
+            color: #7ee787; 
+            margin-right: 8px;
+        }
+
+        .cmd-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            caret-color: #7ee787;
+        }
+
+        .error-msg { color: #ff7b72; }
+        .success-msg { color: #7ee787; }
+        .info-msg { color: #a1a1aa; }
+
+        /* --- COMMANDS PANEL & TOGGLE BUTTON --- */
+        
+        .commands-panel-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0; 
+            overflow: hidden;
+            transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            background: #0d1117;
+            border-top: 1px solid var(--glass-border);
+            border-radius: 0 0 12px 12px;
+            box-shadow: inset 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .commands-panel-container.open {
+            height: 150px; 
+        }
+
+        .panel-header-custom {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ffffff; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .commands-list-custom {
+            padding: 10px;
+            display: grid;
+            /* Десктоп: авто-колонки минимум 100px */
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            overflow-y: auto;
+            max-height: calc(150px - 35px); 
+        }
+
+        .cmd-item-custom {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid transparent;
+            padding: 8px 12px; /* Увеличил паддинг для тача */
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            /* Минимальная высота для удобства на телефоне */
+            min-height: 40px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cmd-item-custom:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .toggle-commands-btn {
+            position: absolute;
+            bottom: 10px; 
+            right: 10px;  
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .toggle-commands-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .toggle-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .commands-panel-container.open ~ .toggle-commands-btn .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--glass-border);
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        /* АДАПТИВ ДЛЯ ТЕЛЕФОНОВ И МАЛЕНЬКИХ ЭКРАНОВ */
+        @media (max-width: 600px) {
+            header { padding: 1rem; }
+            .logo-center { font-size: 1.2rem; }
+            .controls-right { gap: 0.5rem; }
+            .role-title { font-size: 0.9rem; }
+            .description-caps { font-size: 0.85rem; padding: 0 10px; }
+            
+            .terminal-wrapper {
+                max-width: 100%;
+                padding: 0 10px;
+            }
+            
+            .python-shell {
+                height: 250px;
+            }
+            
+            /* Панель команд на мобилке: фиксированная высота, скролл внутри если нужно */
+            .commands-panel-container.open {
+                height: 180px; /* Чуть выше, чтобы вместить 2 ряда кнопок */
+            }
+            
+            /* Сетка кнопок: строго 2 колонки на телефоне */
+            .commands-list-custom {
+                grid-template-columns: 1fr 1fr; 
+                gap: 10px;
+                padding: 15px;
+                max-height: calc(180px - 35px);
+            }
+            
+            .cmd-item-custom {
+                font-size: 0.9rem; /* Крупнее текст */
+                padding: 12px;     /* Больше зона нажатия */
+            }
+            
+            .shell-body { 
+                padding: 10px;
+            }
+            .cmd-input {
+                font-size: 0.8rem;
+            }
+            
+            /* Кнопка переключения тоже чуть крупнее */
+            .toggle-commands-btn {
+                width: 40px;
+                height: 40px;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+        
+        /* Очень маленькие экраны (< 350px) */
+        @media (max-width: 350px) {
+             .commands-list-custom {
+                 grid-template-columns: 1fr; /* Одна колонка */
+             }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas для матрицы -->
+    <canvas id="matrixCanvas"></canvas>
+    <div class="ambient-light"></div>
+
+    <header>
+        <a href="#" onclick="location.reload()" class="logo-center">ROKSOV69</a>
+        
+        <div class="controls-right">
+            <div class="lang-switch" onclick="toggleLang()">
+                <button class="lang-btn active" id="btn-ru">RU</button>
+                <button class="lang-btn" id="btn-en">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="avatar-ring">
+                <!-- Твое фото -->
+                <img src="avatar.jpg" alt="Avatar" class="avatar-img">
+            </div>
+            
+            <h2 class="role-title fade-text" id="role-display">СОЗДАТЕЛЬ КОНТЕНТА & РАЗРАБОТЧИК</h2>
+
+            <p class="description-caps fade-text" id="bio-display">
+                СОЗДАЮ ИНТЕРЕСНЫЙ КОНТЕНТ И УВЛЕКАЮСЬ ИНФОРМАЦИОННЫМИ ТЕХНОЛОГИЯМИ
+            </p>
+
+            <div class="social-links">
+                <!-- YouTube -->
+                <a href="https://www.youtube.com/@roksov69" target="_blank" class="btn-social glass" title="YouTube">
+                    <svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.5 15.5v-7l6.5 3.5-6.5 3.5Z"/></svg>
+                </a>
+                
+                <!-- GitHub -->
+                <a href="https://github.com/Roksov69" target="_blank" class="btn-social glass" title="GitHub">
+                    <svg viewBox="0 0 24 24"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.4 4.8 18.4 5 18.4 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5Z"/></svg>
+                </a>
+
+                <!-- Donate -->
+                <a href="https://www.donationalerts.com/r/roksov69" target="_blank" class="btn-social btn-donate glass" title="Donate">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </a>
+            </div>
+
+            <!-- Python Shell Container with Integrated Commands Panel -->
+            <div class="terminal-wrapper">
+                <button class="launch-btn" id="launchBtn" onclick="reopenTerminal()">Launch Python Console</button>
+
+                <div class="python-shell" id="termShell">
+                    <div class="shell-header">
+                        <div class="window-controls">
+                            <span class="control-dot dot-close" onclick="closeTerminal()"></span>
+                            <span class="control-dot dot-minimize" onclick="minimizeTerminal()"></span>
+                            <span class="control-dot dot-maximize" onclick="restoreTerminal()"></span>
+                        </div>
+                        <span class="shell-title">Python 3.11 Interactive Shell</span>
+                    </div>
+                    
+                    <div class="shell-body" id="termOutput">
+                        <!-- Подсказка видна сразу -->
+                        <div class="output-line info-msg" id="initialHint">Введите 'help' для списка команд.</div>
+                        
+                        <div style="display:flex; align-items:center;" id="inputWrapper">
+                            <span class="py-prompt">&gt;&gt;&gt;</span>
+                            <input type="text" class="cmd-input" id="cmdInput" placeholder="enter command..." autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+
+                    <!-- Панель команд (выезжает снизу терминала) -->
+                    <div class="commands-panel-container" id="commandsPanel">
+                        <div class="panel-header-custom">Commands</div>
+                        <div class="commands-list-custom">
+                            <div class="cmd-item-custom" onclick="runCommand('help')">help</div>
+                            <div class="cmd-item-custom" onclick="runCommand('status')">status</div>
+                            <div class="cmd-item-custom" onclick="runCommand('hello_world')">hello_world</div>
+                            <div class="cmd-item-custom" onclick="runCommand('get_time')">get_time</div>
+                            <div class="cmd-item-custom" onclick="runCommand('get_date')">get_date</div>
+                            <div class="cmd-item-custom" onclick="runCommand('clear')">clear</div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка переключения панели (Внутри терминала) -->
+                    <div class="toggle-commands-btn" onclick="toggleCommandsPanel()" title="Toggle Commands">
+                        <svg class="toggle-icon" viewBox="0 0 24 24">
+                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <!-- Не переводится -->
+        <p id="copyright-text">© 2026 ROKSOV69</p>
+    </footer>
+
+    <script>
+        // 1. Логика перевода
+        const translations = {
+            ru: {
+                role: "СОЗДАТЕЛЬ КОНТЕНТА & РАЗРАБОТЧИК",
+                bio: "СОЗДАЮ ИНТЕРЕСНЫЙ КОНТЕНТ И УВЛЕКАЮСЬ ИНФОРМАЦИОННЫМИ ТЕХНОЛОГИЯМИ",
+                termHelpHint: "Введите 'help' для списка команд.",
+                launchBtnText: "Запустить консоль Python"
+            },
+            en: {
+                role: "CREATOR & DEVELOPER",
+                bio: "CREATING INTERESTING CONTENT AND PASSIONATE ABOUT IT TECHNOLOGIES",
+                termHelpHint: "Type 'help' for available commands.",
+                launchBtnText: "Launch Python Console"
+            }
+        };
+
+        let currentLang = 'ru';
+
+        function toggleLang() {
+            const newLang = currentLang === 'ru' ? 'en' : 'ru';
+            setLang(newLang);
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+            // Плавная смена текста
+            const elements = ['role-display', 'bio-display'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                el.style.opacity = 0;
+                
+                setTimeout(() => {
+                    if(id==='role-display') el.innerText = translations[lang].role;
+                    else if(id==='bio-display') el.innerText = translations[lang].bio;
+                    
+                    el.style.opacity = 1;
+                }, 150);
+            });
+
+            document.getElementById('launchBtn').innerText = translations[lang].launchBtnText;
+            
+            // Обновляем подсказку в терминале
+            updateTerminalHint();
+        }
+
+        // 2. CANVAS MATRIX LOGIC
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const symbols = '{}[]()<>/\\|+-*~^';
+        const alphabet = katakana + latin + nums + symbols;
+
+        let columns;
+        let drops = [];
+        const fontSize = 14;
+        const speed = 33;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * canvas.height / fontSize;
+            }
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(5, 5, 7, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#6366f1';
+            ctx.font = `${fontSize}px Fira Code`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                ctx.fillText(text, x, y);
+
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        setInterval(drawMatrix, speed);
+
+
+        // 3. Логика Python Терминала
+        
+        const termShell = document.getElementById('termShell');
+        const launchBtn = document.getElementById('launchBtn');
+        const termOutput = document.getElementById('termOutput');
+        const cmdInput = document.getElementById('cmdInput');
+        const inputWrapper = document.getElementById('inputWrapper');
+        const initialHint = document.getElementById('initialHint');
+        const commandsPanel = document.getElementById('commandsPanel');
+
+        const pyCommands = {
+            help: () => [
+                "",
+                "Available functions:",
+                "- status",
+                "- hello_world",
+                "- get_time",
+                "- get_date",
+                "- clear"
+            ],
+            status: () => ["Site Status: ONLINE ✅", "Uptime: Forever", "Developer: Roksov69"],
+            hello_world: () => ["Hello, World! 👋", "Welcome to my portfolio."],
+            get_time: () => [`Current Time: ${new Date().toLocaleTimeString(currentLang === 'ru' ? 'ru-RU' : 'en-US')}`],
+            get_date: () => [`Today is: ${new Date().toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US')}`],
+            clear: () => []
+        };
+
+        function addLine(text, className = '') {
+            const div = document.createElement('div');
+            div.className = 'output-line ' + className;
+            div.innerText = text;
+            termOutput.insertBefore(div, inputWrapper);
+            scrollToBottom();
+        }
+
+        function updateTerminalHint() {
+            if(initialHint) {
+                initialHint.innerText = translations[currentLang].termHelpHint;
+            }
+        }
+
+        function processCommand(cmdStr) {
+            const cleanCmd = cmdStr.trim().toLowerCase();
+            if (!cleanCmd) return;
+
+            addLine(`>>> ${cmdStr}`, '');
+
+            if (cleanCmd === 'clear' || cleanCmd === 'cls') {
+                while (termOutput.firstChild !== inputWrapper) {
+                    termOutput.removeChild(termOutput.firstChild);
+                }
+                return;
+            }
+
+            // Убираем скобки если пользователь их добавил, хотя в UI их нет
+            let funcName = cleanCmd.replace(/\(\)/g, '').replace(/;/g, ''); 
+            
+            if (pyCommands[funcName]) {
+                const resultLines = pyCommands[funcName]();
+                resultLines.forEach(line => addLine(line, 'success-msg'));
+            } else {
+                addLine(`SyntaxError: invalid syntax or unknown command '${funcName}'`, 'error-msg');
+                addLine(`Did you mean 'help'?`, 'info-msg');
+            }
+        }
+
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                processCommand(cmdInput.value);
+                cmdInput.value = '';
+            }
+        });
+
+        function scrollToBottom() {
+            termOutput.scrollTop = termOutput.scrollHeight;
+        }
+
+        // Управление окном с АНИМАЦИЕЙ
+        
+        function closeTerminal() {
+            // Закрываем панель команд перед закрытием терминала
+            commandsPanel.classList.remove('open');
+            
+            termShell.classList.add('closing');
+            setTimeout(() => {
+                termShell.classList.remove('closing');
+                termShell.classList.add('closed');
+                launchBtn.style.display = 'block';
+            }, 400);
+        }
+
+        function reopenTerminal() {
+            termShell.classList.remove('closed');
+            termShell.classList.add('opening');
+            void termShell.offsetWidth;
+            termShell.classList.remove('opening');
+            launchBtn.style.display = 'none';
+            setTimeout(() => {
+                cmdInput.focus();
+                scrollToBottom();
+            }, 50);
+        }
+
+        function minimizeTerminal() {
+            // Если панель открыта, закрываем её автоматически при сворачивании
+            if(commandsPanel.classList.contains('open')) {
+                commandsPanel.classList.remove('open');
+            }
+            
+            termShell.classList.toggle('minimized');
+            if(!termShell.classList.contains('minimized')) {
+                 restoreTerminal();
+            }
+        }
+
+        function restoreTerminal() {
+            termShell.classList.remove('closed');
+            termShell.classList.remove('minimized');
+            launchBtn.style.display = 'none';
+            cmdInput.focus();
+            scrollToBottom();
+        }
+
+        termOutput.addEventListener('click', () => {
+            cmdInput.focus();
+        });
+
+        // NEW: Command Panel Logic
+        function toggleCommandsPanel() {
+            // Блокируем открытие, если терминал свернут или закрыт
+            if(termShell.classList.contains('minimized') || termShell.classList.contains('closed')) {
+                return;
+            }
+            commandsPanel.classList.toggle('open');
+        }
+
+        function runCommand(cmd) {
+            if(termShell.classList.contains('closed') || termShell.classList.contains('minimized')) {
+                restoreTerminal();
+            }
+            
+            // Вставляем команду без скобок
+            cmdInput.value = cmd;
+            
+            // АВТОМАТИЧЕСКОЕ ЗАКРЫТИЕ ПАНЕЛИ КОМАНД
+            commandsPanel.classList.remove('open');
+            
+            // Автоматически выполняем после небольшой паузы
+            setTimeout(() => {
+                processCommand(cmdInput.value);
+                cmdInput.value = '';
+                cmdInput.focus();
+            }, 100);
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                cmdInput.focus();
+            }, 500);
+        };
+
+    </script>
+</body>
+</html>
